@@ -50,7 +50,7 @@ def run(args):
     val_loader=DataLoader(dataset_val,num_workers=args.num_workers, batch_size=args.batch_size_val,  worker_init_fn=worker_init_fn)
     test_loader=DataLoader(dataset_test,num_workers=args.num_workers, batch_size=1)
 
-    device=torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    device=torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
 
 
     if args.bwe.generator.variant=="audiounet": #change to audiounet
@@ -86,6 +86,9 @@ def run(args):
 
     training_stage=0
     
+    if args.bwe.load_model:
+        gener_model.load_state_dict(torch.load(checkpoint_filepath + "_gen", map_location=device))
+        msd.load_state_dict(torch.load(checkpoint_filepath + "_disc", map_location=device))
     for epoch in range(args.epochs):
 
         if epoch==args.bwe.epochs_in_stage_l1 and args.bwe.lambda_adv >0:
@@ -254,7 +257,8 @@ def run(args):
          
         if (epoch+1) % args.freq_save == 0:
             print("saving:_",checkpoint_filepath)
-            torch.save(gener_model.state_dict(), checkpoint_filepath+"_"+str(epoch))
+            torch.save(gener_model.state_dict(), checkpoint_filepath + "_gen")
+            torch.save(msd.state_dict(), checkpoint_filepath + "_disc")
 
         if tb_audios:
             print("inferencing real (denoised) recordings")

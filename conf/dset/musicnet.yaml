@@ -1,0 +1,12 @@
+path_music_train: [ "/home/wallace.abreu/Mestrado/behm-gan_vanilla/datasets/musicnet/train_data"]
+path_music_validation: ["/home/wallace.abreu/Mestrado/behm-gan_vanilla/datasets/musicnet/val_data"]
+path_music_test: ["/home/wallace.abreu/Mestrado/behm-gan_vanilla/datasets/musicnet/test_data"]
+
+path_test: ["/home/wallace.abreu/Mestrado/behm-gan_vanilla/datasets/musicnet/test_data"]
+
+
+path_noise: "/home/wallace.abreu/Mestrado/behm-gan_vanilla/experiments_denoiser" #path with noise samples. There must be an info.csv file there
+#path_recordings: "/scratch/work/molinee2/datasets/real_noisy_data_test" #path with real noisy recordings. There must be an audio_files.txt file there
+#path_recordings: "/scratch/work/molinee2/datasets/real_noisy_data_test/test_set_dataset_all" #path with real noisy recordings. There must be an audio_files.txt file there
+path_recordings: "/home/wallace.abreu/Mestrado/behm-gan_vanilla/datasets/musicnet/test_data" #path with real noisy recordings. There must be an audio_files.txt file there
+      

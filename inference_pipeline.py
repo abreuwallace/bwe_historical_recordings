@@ -36,7 +36,7 @@ def run(args):
     #Loading data. The train dataset object is a generator. The validation dataset is loaded in memory.
 
     device=torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
+    #device = torch.device('cpu')
 
 
     ##NOT IMLEMENTED YET
@@ -55,25 +55,25 @@ def run(args):
     gener_model.load_state_dict(torch.load(checkpoint_filepath, map_location=device))
     #print("something went wrong while loading the checkpoint")
 
-    checkpoint_filepath_denoiser=os.path.join(dirname,str(args.checkpoint_denoiser))
-    unet_model = denoiser.MultiStage_denoise(unet_args=args.denoiser)
-    unet_model.load_state_dict(torch.load(checkpoint_filepath_denoiser, map_location=device))
-    unet_model.to(device)
+    #checkpoint_filepath_denoiser=os.path.join(dirname,str(args.checkpoint_denoiser))
+    #unet_model = denoiser.MultiStage_denoise(unet_args=args.denoiser)
+    #unet_model.load_state_dict(torch.load(checkpoint_filepath_denoiser, map_location=device))
+    #unet_model.to(device)
 
 
 
-    def apply_denoiser_model(segment):
-        segment_TF=utils.do_stft(segment,win_size=args.stft.win_size, hop_size=args.stft.hop_size, device=device)
-        #segment_TF_ds=tf.data.Dataset.from_tensors(segment_TF)
-        with torch.no_grad():
-            pred = unet_model(segment_TF)
-        if args.denoiser.num_stages>1:
-            pred=pred[0]
+    # def apply_denoiser_model(segment):
+    #     segment_TF=utils.do_stft(segment,win_size=args.stft.win_size, hop_size=args.stft.hop_size, device=device)
+    #     #segment_TF_ds=tf.data.Dataset.from_tensors(segment_TF)
+    #     with torch.no_grad():
+    #         pred = unet_model(segment_TF)
+    #     if args.denoiser.num_stages>1:
+    #         pred=pred[0]
 
-        pred_time=utils.do_istft(pred, args.stft.win_size, args.stft.hop_size,device)
-        #pred_time=pred_time[0]
-        #pred_time=pred_time[0].detach().cpu().numpy()
-        return pred_time
+    #     pred_time=utils.do_istft(pred, args.stft.win_size, args.stft.hop_size,device)
+    #     #pred_time=pred_time[0]
+    #     #pred_time=pred_time[0].detach().cpu().numpy()
+    #     return pred_time
 
     def apply_bwe_model(x): 
         x_init=x
@@ -154,14 +154,15 @@ def run(args):
 
             if args.inference.apply_lpf:
                 segment=lowpass_utils.apply_butter_lowpass_test(segment,args.inference.fc, args.fs) 
-                xlpf=segment
+                xlpf=segment.view(-1,)
+                xlpf = xlpf.cpu().numpy()
                 #just concatenating with a little bit of OLA
                 if pointer==0:
                     xlpf=np.concatenate((xlpf[0:int(segment_size-overlapsize)], np.multiply(xlpf[int(segment_size-overlapsize):segment_size],window_right)), axis=0)
                 else:
                     xlpf=np.concatenate((np.multiply(xlpf[0:int(overlapsize)], window_left), xlpf[int(overlapsize):int(segment_size-overlapsize)], np.multiply(xlpf[int(segment_size-overlapsize):int(segment_size)],window_right)), axis=0)
 
-                xlpf=xlpf[0].detach().cpu().numpy()
+                #xlpf=xlpf[0].detach().cpu().numpy()
                 denoised_lpf[pointer:pointer+segment_size]=denoised_lpf[pointer:pointer+segment_size]+xlpf
 
             if args.inference.use_bwe:
@@ -197,10 +198,11 @@ def run(args):
 
             if args.inference.apply_lpf:
                 segment=lowpass_utils.apply_butter_lowpass_test(segment,args.inference.fc, args.fs) 
-                xlpf=segment
+                xlpf=segment.view(-1,)
+                xlpf = xlpf.cpu().numpy()
                 if pointer!=0:
                     xlpf=np.concatenate((np.multiply(xlpf[0:int(overlapsize)], window_left), xlpf[int(overlapsize):int(segment_size)]),axis=0)
-                xlpf=xlpf[0].detach().cpu().numpy()
+                #xlpf=xlpf[0].detach().cpu().numpy()
                 denoised_lpf[pointer::]=denoised_lpf[pointer::]+xlpf[0:lensegment]
 
             if args.inference.use_bwe:

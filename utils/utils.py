@@ -36,7 +36,6 @@ def do_istft(data, win_size=2048, hop_size=512, device="cuda"):
     window=window.to(device)
     data=data.permute(0,3,2,1).contiguous()
     data=torch.view_as_complex(data)
-    print(data.shape)
     pred_time=torch.istft(data, win_size, hop_length=hop_size,  window=window, center=False, return_complex=False)
     #pred_time=torch.view_as_real(pred_time)
     return pred_time
