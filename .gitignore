@@ -1,0 +1,5 @@
+.vscode/
+*.pyc
+.python-version
+__pycache__/
+tb_logs/
