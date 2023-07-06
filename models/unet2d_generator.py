@@ -105,8 +105,6 @@ class AddFreqEncoding(nn.Module):
 
         fembeddings_2 = torch.broadcast_to(self.fembeddings, [batch_size_tensor, time_dim, self.f_dim, 10])
         fembeddings_2=fembeddings_2.permute(0,3,1,2)
-    
-        
         return torch.cat((input_tensor,fembeddings_2),1)  #(batch,12,427,1025)
 
 

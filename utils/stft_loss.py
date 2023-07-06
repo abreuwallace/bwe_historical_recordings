@@ -91,9 +91,9 @@ class MultiResolutionSTFTLoss(torch.nn.Module):
     """Multi resolution STFT loss module."""
 
     def __init__(self,
-                 fft_sizes=[256, 512, 1024,2048],
-                 hop_sizes=[64, 128, 256, 512],
-                 win_lengths=[256, 512, 1024,2048],
+                 fft_sizes=[512, 1024,2048, 4096],
+                 hop_sizes=[128, 256, 512, 1024],
+                 win_lengths=[512, 1024, 2048, 4096],
                  window="hamming_window"):
         """Initialize Multi resolution STFT loss module.
         Args:

@@ -5,7 +5,7 @@ import numpy as np
 def remez_lp_filt(x, fc, fs):
     cutoff = fc    # Desired cutoff frequency, Hz
     trans_width = 200  # Width of transition from pass to stop, Hz
-    numtaps = 500   # Size of the FIR filter.
+    numtaps = 1000   # Size of the FIR filter.
     taps = signal.remez(numtaps, [0, cutoff, cutoff + trans_width, 0.5*fs],
                         [1, 0], fs=fs)
 

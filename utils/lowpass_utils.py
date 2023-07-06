@@ -26,6 +26,16 @@ def get_random_FIR_filters(num_filters,mean_fc=3500, std_fc= 300,args=None, sr=4
         filters.append( B)
     return filters
 
+def get_remez_filter(fc, order, transition, fs):
+    filter = []
+    cutoff = fc    # Desired cutoff frequency, Hz
+    trans_width = transition  # Width of transition from pass to stop, Hz
+    numtaps = order   # Size of the FIR filter.
+    taps = scipy.signal.remez(numtaps, [0, cutoff, cutoff + trans_width, 0.5*fs],
+                        [1, 0], fs=fs)
+    filter.append(taps)
+    return filter
+
 def get_FIR_lowpass(order,fc, beta, sr):
     """ Gets coeffcients of chosen filter
     

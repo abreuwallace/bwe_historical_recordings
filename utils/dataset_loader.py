@@ -300,7 +300,7 @@ class TestDataset(torch.utils.data.Dataset):
         pointer=int(fs*5) #starting at second 5 by default
         for i in tqdm(range(len(test_samples))):
             data, sr=sf.read(test_samples[i])
-            if len(data.shape)>1 and not(stereo):
+            if len(data.shape)>1:
                 data=np.mean(data,axis=1)
             if sr !=fs: 
                 

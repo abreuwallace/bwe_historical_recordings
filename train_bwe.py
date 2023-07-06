@@ -50,7 +50,7 @@ def run(args):
     val_loader=DataLoader(dataset_val,num_workers=args.num_workers, batch_size=args.batch_size_val,  worker_init_fn=worker_init_fn)
     test_loader=DataLoader(dataset_test,num_workers=args.num_workers, batch_size=1)
 
-    device=torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
+    device=torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
     if args.bwe.generator.variant=="audiounet": #change to audiounet
@@ -74,9 +74,8 @@ def run(args):
     
     #path where the checkpoints will be saved
     checkpoint_filepath=os.path.join(path_experiment, 'checkpoint')
-    #Loading filters
-    num_filters=args.bwe.lpf.num_random_filters
-    filters=lowpass_utils.get_random_FIR_filters(num_filters, mean_fc=args.bwe.lpf.mean_fc, std_fc=args.bwe.lpf.std_fc, device=device,sr=args.fs)# more parameters here
+    #Loading filter
+    filters=lowpass_utils.get_remez_filter(args.bwe.lpf.mean_fc, args.bwe.lpf.remez_order, args.bwe.lpf.remez_trans, args.fs)
 
     loss_l1 = torch.nn.L1Loss()
     loss_l2 = torch.nn.MSELoss()
@@ -96,10 +95,6 @@ def run(args):
             #change lr
             for g in optim_g.param_groups:
                 g['lr'] = args.bwe.lr_gen_l2
-
-        train_loss=0
-        step_loss=0
-        
         
         for step in tqdm(range(int(args.steps_per_epoch)), desc="Training epoch "+str(epoch)):
             #Load noise and data
@@ -164,7 +159,7 @@ def run(args):
     
             if training_stage==1:
     
-                y_ds_hat_r, y_ds_hat_g, fmap_s_r, fmap_s_g = msd(y, y_g)
+                y_ds_hat_r, y_ds_hat_g, _, _ = msd(y, y_g)
                 loss_gen_s, losses_gen_s = unet2d_generator.generator_loss(y_ds_hat_g)
 
                 loss_gen_all += args.bwe.lambda_adv * (loss_gen_s)    
